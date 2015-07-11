@@ -11,43 +11,6 @@ IF(MINGW OR MSVC)
     )
 ENDIF()
 
-SET(Vlc_Plugins_Type
-    3dnow
-    access
-    access_output
-    audio_filter
-    audio_mixer
-    audio_output
-    codec
-    demux
-    meta_engine
-    misc
-    mmx
-    mmxext
-    mux
-    packetizer
-    services_discovery
-    sse2
-    stream_filter
-    stream_out
-    text_renderer
-    video_chroma
-    video_filter
-    video_output
-)
-
-MACRO(VLC_INSTALL_PLUGINS)
-    FOREACH(type ${ARGN})
-        FILE(GLOB Vlc_Plugins ${LIBVLCQT_BIN_DIR}/plugins/${type}/*.dll)
-        INSTALL(FILES ${Vlc_Plugins} DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_BIN_DIR}/plugins/${type}")
-    ENDFOREACH(type)
-ENDMACRO(VLC_INSTALL_PLUGINS)
-
-STRING(REGEX REPLACE "\\\\" "/" LIBVLCQT_INCLUDE_DIR "${LIBVLCQT_INCLUDE_DIR}")
-
-STRING(REGEX REPLACE "sdk/include" "" LIBVLCQT_BIN_DIR "${LIBVLCQT_INCLUDE_DIR}")
-STRING(REGEX REPLACE "include" "bin" LIBVLCQT_BIN_DIR "${LIBVLCQT_BIN_DIR}")
-
 STRING(REGEX REPLACE "bin" "plugins" QT_PLUGINS_DIR "${QT_BIN_DIR}")
 
 SET(Qt5_Platforms
@@ -83,25 +46,9 @@ SET(VlcQt_Libs
     ${LIBVLCQT_BIN_DIR}/${VlcQt_Prefix}vlc-qt-qml.dll
 )
 
-SET(Vlc_Libs
-    ${LIBVLCQT_BIN_DIR}/libvlc.dll
-    ${LIBVLCQT_BIN_DIR}/libvlccore.dll
-)
-
-FILE(GLOB Vlc_Gcc "${LIBVLCQT_BIN_DIR}/libgcc_s_*-1.dll")
-IF(Vlc_Gcc)
-    SET(Extra_Libs
-        ${Vlc_Gcc}
-    )
-ENDIF()
-
-FILE(GLOB Vlc_Std "${LIBVLCQT_BIN_DIR}/libstdc++-6.dll")
-IF(Vlc_Std)
-    SET(Extra_Libs
-        ${LIBVLCQT_BIN_DIR}/libstdc++-6.dll
-        ${LIBVLCQT_BIN_DIR}/libwinpthread-1.dll
-    )
-ENDIF()
+# define linked libs there
+SET(${Extra_Libs}
+	"")
 
 IF(MINGW)
     SET(Extra_Libs
@@ -128,8 +75,7 @@ INSTALL(FILES ${Qt5_Libs_Qml} DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_INS
 INSTALL(FILES ${VlcQt_Libs} DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_BIN_DIR}")
 INSTALL(FILES ${Vlc_Libs} DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_BIN_DIR}")
 
-IF(MINGW OR Vlc_Gcc)
+IF(MINGW)
     INSTALL(FILES ${Extra_Libs} DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_BIN_DIR}")
 ENDIF()
 
-VLC_INSTALL_PLUGINS(${Vlc_Plugins_Type})

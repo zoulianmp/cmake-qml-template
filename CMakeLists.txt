@@ -7,7 +7,7 @@ CMAKE_POLICY(VERSION 3.0.2)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/Definitions.cmake)
 
-PROJECT(${Project} VERSION 1.0.0)
+PROJECT(${Project} VERSION ${ver})
 
 CONFIGURE_FILE(
     "${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
@@ -69,13 +69,12 @@ ENDIF()
 FIND_PACKAGE(Qt5Core ${Qt_min_REQUIRED} REQUIRED)
 FIND_PACKAGE(Qt5Quick ${Qt_min_REQUIRED} REQUIRED)
 
-IF(MINGW OR MSVC)
-    OPTION(WITH_ANGLE "Build with Angle" OFF)
-ENDIF()
+#IF(MINGW OR MSVC)
+#    OPTION(WITH_ANGLE "Build with Angle" OFF)
+#ENDIF()
 
 # Add additional libraries
-# TODO remove that
-FIND_PACKAGE(LIBVLCQT REQUIRED)
+# FIND_PACKAGE()
 
 # Set Qt bin dir to find QtCore*.dll and other libs to install
 STRING(REGEX REPLACE "([^ ]+)[/\\].*" "\\1" QT_BIN_DIR_TMP "${QT_MOC_EXECUTABLE}")
@@ -91,13 +90,6 @@ IF(MINGW OR MSVC)
     ENDIF()
     SET(PROJECT_INSTALL_BIN_DIR ".")
     SET(PROJECT_INSTALL_LIB_DIR "lib")
-ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    IF(NOT CMAKE_INSTALL_PREFIX)
-        SET(CMAKE_INSTALL_PREFIX "/Applications")
-    ENDIF()
-    SET(PROJECT_INSTALL_BIN_DIR "${PROJECT_NAME}.app/Contents/MacOS")
-    SET(PROJECT_INSTALL_LIB_DIR "${PROJECT_NAME}.app/Contents/MacOS/lib")
-    SET(CMAKE_INSTALL_RPATH "@executable_path/lib")
 ELSE()
     IF(NOT CMAKE_INSTALL_PREFIX)
         SET(CMAKE_INSTALL_PREFIX "/usr/local")
@@ -106,22 +98,15 @@ ELSE()
     SET(PROJECT_INSTALL_LIB_DIR "lib")
 ENDIF()
 
-# Set the OS X Bundle specific CMake variables which will be used to populate the plist for
-# the application bundle
-SET(MACOSX_BUNDLE_COPYRIGHT ${Copyright})
-SET(MACOSX_BUNDLE_ICON_FILE "${PROJECT_NAME}.icns")
-SET(MACOSX_BUNDLE_GUI_IDENTIFIER "org.${PROJECT_NAME_LOWER}")
 
 SET(WINDOWS_AUTHOR ${Copyright})
 SET(WINDOWS_DESCRIPTION ${Project_desc})
-SET(WINDOWS_COPYRIGHT "Copyright (C) ${MACOSX_BUNDLE_COPYRIGHT}")
+SET(WINDOWS_COPYRIGHT "Copyright (C) ${Copyright}")
 
 
 # Include source
 IF(MINGW OR MSVC)
     ADD_SUBDIRECTORY(windows)
-ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    ADD_SUBDIRECTORY(osx)
 ENDIF()
 
 ADD_SUBDIRECTORY(src)
